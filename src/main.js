@@ -1,24 +1,53 @@
-const chalk = require("chalk");
 const path = require("path");
 const fs = require("fs");
 const { marked } = require("marked");
-
-console.log(chalk.blue("Hello world!"));
+const axios = require('axios');
 
 /**
- * 
- * @param {string} fullPath 
- * @param {Object} [options]
- * @param {boolean} [options.validate]
- * @param {boolean} [options.stats]
- * @returns 
+ * Makes a GET request to each link so we can validate them all
+ * @param {Array<{ href: string, text: string, file: string }>} links
+ * @returns
  */
-function readMdFile(fullPath, options) {
+function validateLinks(links) {
+  return new Promise((resolve) => {
+    const promiseArray = [];
+    links.forEach(link => {
+      promiseArray.push(new Promise((resolveGet) => {
+        axios.get(link.href).then(response => {
+          link.ok = true;
+          link.status = response.status;
+          resolveGet();
+        }).catch(error => {
+          let status = 500;
+          if (error.response) {
+            status = error.response.status;
+          } else if (error.request) {
+            status = 503;
+          }
+          link.ok = false;
+          link.status = status;
+          resolveGet();
+        })
+      }));
+    });
+    Promise.all(promiseArray).then(() => {
+      resolve();
+    });
+  });
+}
+
+/**
+ * Read the contents of each markdown file and get all the links inside of it
+ * @param {string} fullPath 
+ * @returns {Promise<Array<{ href: string, text: string, file: string }>>}
+ */
+function readMdFile(fullPath) {
   return new Promise((resolve, reject) => {
     const links = [];
     const isMarkdown = path.extname(fullPath) === ".md";
     if (!isMarkdown) {
       resolve(links);
+      return;
     }
     fs.readFile(fullPath, "utf8", (error, data) => {
       if (error) reject(error);
@@ -39,14 +68,11 @@ function readMdFile(fullPath, options) {
 }
 
 /**
- * 
- * @param {string} filePath 
- * @param {Object} [options]
- * @param {boolean} [options.validate]
- * @param {boolean} [options.stats]
+ * Find links inside dirs or files
+ * @param {string} filePath
  * @returns 
  */
-function mdLinks(filePath, options) {
+function findLinks(filePath) {
   const resolvedPath = path.resolve(filePath);
   const pathExist = fs.existsSync(resolvedPath);
   const pendingFilesToRead = [];
@@ -59,6 +85,8 @@ function mdLinks(filePath, options) {
     dir.forEach((fileName) => {
       if (fileName.isFile()) {
         pendingFilesToRead.push(readMdFile(path.resolve(resolvedPath, fileName.name)));
+      } else if (fileName.isDirectory()) {
+        pendingFilesToRead.push(...findLinks(path.resolve(resolvedPath, fileName.name)));
       }
     });
   } else {
@@ -66,5 +94,60 @@ function mdLinks(filePath, options) {
   }
   return pendingFilesToRead;
 }
+
+/**
+ * 
+ * @param {string} filePath 
+ * @param {Object} [options]
+ * @param {boolean} [options.validate]
+ * @returns 
+ */
+function mdLinks(filePath, options = {}) {
+  return new Promise((resolve) => {
+    Promise.all(findLinks(filePath, options)).then((fileLinks) => {
+      const mergedLinks = [];
+      fileLinks.forEach(links => links.forEach(link => {
+        mergedLinks.push(link);
+      }));
+      if (options.validate) {
+        validateLinks(mergedLinks).then(() => {
+          resolve(mergedLinks);
+        });
+        return;
+      }
+      resolve(mergedLinks);
+    })
+  });
+}
+
+function fib(n) {
+  if (n === 0) {
+    return 0;
+  }
+  if (n === 1) {
+    return 1;
+  }
+  let n2 = 0;
+  let n1 = 1;
+  let current = 0;
+  for(let i = 2; i <= n; i++){
+    current = n2 + n1;
+    n2 = n1;
+    n1 = current;
+  }
+  return current;
+}
+
+function fibRecursion(n) {
+  if (n === 0) {
+    return 0;
+  }
+  if (n === 1) {
+    return 1;
+  }
+  return fibRecursion(n - 1) + fibRecursion(n - 2);
+}
+
+// console.log(mdLinks('C:/Users/juanf/Documents/md-links-test', { validate: true }))
 
 module.exports = mdLinks;
