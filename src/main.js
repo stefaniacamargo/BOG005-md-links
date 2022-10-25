@@ -100,7 +100,7 @@ function findLinks(filePath) {
  * @param {string} filePath 
  * @param {Object} [options]
  * @param {boolean} [options.validate]
- * @returns 
+ * @returns {Promise<Array<{ href: string, text: string, file: string }>>}
  */
 function mdLinks(filePath, options = {}) {
   return new Promise((resolve) => {
@@ -119,35 +119,5 @@ function mdLinks(filePath, options = {}) {
     })
   });
 }
-
-function fib(n) {
-  if (n === 0) {
-    return 0;
-  }
-  if (n === 1) {
-    return 1;
-  }
-  let n2 = 0;
-  let n1 = 1;
-  let current = 0;
-  for(let i = 2; i <= n; i++){
-    current = n2 + n1;
-    n2 = n1;
-    n1 = current;
-  }
-  return current;
-}
-
-function fibRecursion(n) {
-  if (n === 0) {
-    return 0;
-  }
-  if (n === 1) {
-    return 1;
-  }
-  return fibRecursion(n - 1) + fibRecursion(n - 2);
-}
-
-// console.log(mdLinks('C:/Users/juanf/Documents/md-links-test', { validate: true }))
 
 module.exports = mdLinks;
