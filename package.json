@@ -1,21 +1,22 @@
 {
-  "name": "@estefaniacamargo263/md-links",
+  "name": "@estefania.camargo.263/md-links",
   "version": "1.0.0",
   "engines": {
     "node": ">=12.x"
   },
   "description": "* [1. Preámbulo](#1-preámbulo)\r * [2. Resumen del proyecto](#2-resumen-del-proyecto)\r * [3. Objetivos de aprendizaje](#3-objetivos-de-aprendizaje)\r * [4. Consideraciones generales](#4-consideraciones-generales)\r * [5. Criterios de aceptación mínimos del proyecto](#5-criterios-de-aceptación-mínimos-del-proyecto)\r * [6. Entregables](#6-entregables)\r * [7. Hacker edition](#7-hacker-edition)\r * [8. Pistas, tips y lecturas complementarias](#8-pistas-tips-y-lecturas-complementarias)\r * [9. Checklist](#9-checklist)\r * [10. Achicando el problema](#10-achicando-el-problema)",
-  "main": "./src/main.js",
+  "main": "index.js",
   "bin": {
-    "md-links": "./src/cli.js"
+    "md-links": "cli.js"
   },
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "jest --env=jsdom--coverage",
-    "lint": "eslint --fix",
-    "build": "npm run lint && npm run test"
+    "eslint": "eslint src/** cli.js index.js test/**",
+    "eslint:fix": "npm run eslint -- --fix",
+    "build": "npm run eslint:fix && npm run test"
   },
   "repository": {
     "type": "git",
@@ -37,5 +38,10 @@
     "marked": "^4.1.1",
     "ora": "^5.4.1",
     "yargs": "^17.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.26.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0"
   }
 }

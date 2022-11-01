@@ -1,6 +1,7 @@
-const path = require("path");
-const fs = require("fs");
-const { marked } = require("marked");
+/* eslint-disable no-param-reassign */
+const path = require('path');
+const fs = require('fs');
+const { marked } = require('marked');
 const axios = require('axios');
 
 /**
@@ -11,13 +12,13 @@ const axios = require('axios');
 function validateLinks(links) {
   return new Promise((resolve) => {
     const promiseArray = [];
-    links.forEach(link => {
+    links.forEach((link) => {
       promiseArray.push(new Promise((resolveGet) => {
-        axios.get(link.href).then(response => {
+        axios.get(link.href).then((response) => {
           link.ok = true;
           link.status = response.status;
           resolveGet();
-        }).catch(error => {
+        }).catch((error) => {
           let status = 500;
           if (error.response) {
             status = error.response.status;
@@ -27,7 +28,7 @@ function validateLinks(links) {
           link.ok = false;
           link.status = status;
           resolveGet();
-        })
+        });
       }));
     });
     Promise.all(promiseArray).then(() => {
@@ -38,22 +39,22 @@ function validateLinks(links) {
 
 /**
  * Read the contents of each markdown file and get all the links inside of it
- * @param {string} fullPath 
+ * @param {string} fullPath
  * @returns {Promise<Array<{ href: string, text: string, file: string }>>}
  */
 function readMdFile(fullPath) {
   return new Promise((resolve, reject) => {
     const links = [];
-    const isMarkdown = path.extname(fullPath) === ".md";
+    const isMarkdown = path.extname(fullPath) === '.md';
     if (!isMarkdown) {
       resolve(links);
       return;
     }
-    fs.readFile(fullPath, "utf8", (error, data) => {
+    fs.readFile(fullPath, 'utf8', (error, data) => {
       if (error) reject(error);
       marked(data, {
         walkTokens: (token) => {
-          if (token.type === "link" && token.href.includes("http")) {
+          if (token.type === 'link' && token.href.includes('http')) {
             links.push({
               href: token.href,
               text: token.text,
@@ -70,7 +71,7 @@ function readMdFile(fullPath) {
 /**
  * Find links inside dirs or files
  * @param {string} filePath
- * @returns 
+ * @returns
  */
 function findLinks(filePath) {
   const resolvedPath = path.resolve(filePath);
@@ -95,29 +96,8 @@ function findLinks(filePath) {
   return pendingFilesToRead;
 }
 
-/**
- * 
- * @param {string} filePath 
- * @param {Object} [options]
- * @param {boolean} [options.validate]
- * @returns {Promise<Array<{ href: string, text: string, file: string }>>}
- */
-function mdLinks(filePath, options = {}) {
-  return new Promise((resolve) => {
-    Promise.all(findLinks(filePath, options)).then((fileLinks) => {
-      const mergedLinks = [];
-      fileLinks.forEach(links => links.forEach(link => {
-        mergedLinks.push(link);
-      }));
-      if (options.validate) {
-        validateLinks(mergedLinks).then(() => {
-          resolve(mergedLinks);
-        });
-        return;
-      }
-      resolve(mergedLinks);
-    })
-  });
-}
-
-module.exports = mdLinks;
+module.exports = {
+  validateLinks,
+  readMdFile,
+  findLinks,
+};

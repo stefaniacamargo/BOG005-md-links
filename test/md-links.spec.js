@@ -1,10 +1,5 @@
-const mdLinks = require('../');
-
+const mdLinks = require('../src/utils');
 
 describe('mdLinks', () => {
-
-  it('should...', () => {
-    console.log('FIX ME!');
-  });
-
+  it('check the path', () => mdLinks);
 });
