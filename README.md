@@ -36,7 +36,7 @@ npm i @estefania.camargo.263/md-links
 
 Ejemplo : 
  
- <img src= "./Comando.png">
+ <img src= "./imgComandos/Comando.png">
 
 ---
 
