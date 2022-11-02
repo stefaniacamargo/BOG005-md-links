@@ -1,3 +1,4 @@
 {
-  "prettier.endOfLine": "lf"
+  "prettier.endOfLine": "lf",
+  "editor.formatOnSave": true
 }

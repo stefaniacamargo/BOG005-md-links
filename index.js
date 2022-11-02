@@ -11,9 +11,11 @@ function mdLinks(filePath, options = {}) {
   return new Promise((resolve) => {
     Promise.all(findLinks(filePath, options)).then((filesLinks) => {
       const mergedLinks = [];
-      filesLinks.forEach((fileLinks) => fileLinks.forEach((link) => {
-        mergedLinks.push(link);
-      }));
+      filesLinks.forEach((fileLinks) =>
+        fileLinks.forEach((link) => {
+          mergedLinks.push(link);
+        }),
+      );
       if (options.validate) {
         validateLinks(mergedLinks).then(() => {
           resolve(mergedLinks);

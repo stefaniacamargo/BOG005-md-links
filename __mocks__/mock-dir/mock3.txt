@@ -1,0 +1,4 @@
+# Markdown Mock File TXT
+
+* [Mock 3](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
+* [Mock 4](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce)

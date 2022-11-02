@@ -13,23 +13,28 @@ function validateLinks(links) {
   return new Promise((resolve) => {
     const promiseArray = [];
     links.forEach((link) => {
-      promiseArray.push(new Promise((resolveGet) => {
-        axios.get(link.href).then((response) => {
-          link.ok = true;
-          link.status = response.status;
-          resolveGet();
-        }).catch((error) => {
-          let status = 500;
-          if (error.response) {
-            status = error.response.status;
-          } else if (error.request) {
-            status = 503;
-          }
-          link.ok = false;
-          link.status = status;
-          resolveGet();
-        });
-      }));
+      promiseArray.push(
+        new Promise((resolveGet) => {
+          axios
+            .get(link.href)
+            .then((response) => {
+              link.ok = true;
+              link.status = response.status;
+              resolveGet();
+            })
+            .catch((error) => {
+              let status = 500;
+              if (error.response) {
+                status = error.response.status;
+              } else if (error.request) {
+                status = 503;
+              }
+              link.ok = false;
+              link.status = status;
+              resolveGet();
+            });
+        }),
+      );
     });
     Promise.all(promiseArray).then(() => {
       resolve();
@@ -85,9 +90,13 @@ function findLinks(filePath) {
     const dir = fs.readdirSync(resolvedPath, { withFileTypes: true });
     dir.forEach((fileName) => {
       if (fileName.isFile()) {
-        pendingFilesToRead.push(readMdFile(path.resolve(resolvedPath, fileName.name)));
+        pendingFilesToRead.push(
+          readMdFile(path.resolve(resolvedPath, fileName.name)),
+        );
       } else if (fileName.isDirectory()) {
-        pendingFilesToRead.push(...findLinks(path.resolve(resolvedPath, fileName.name)));
+        pendingFilesToRead.push(
+          ...findLinks(path.resolve(resolvedPath, fileName.name)),
+        );
       }
     });
   } else {
